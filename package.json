@@ -1,0 +1,20 @@
+{
+  "name": "vid2finder",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@types/bmp-js": "^0.1.0",
+    "@types/node": "^20.8.4",
+    "bmp-js": "^0.1.0",
+    "ffmpeg-static": "^5.2.0",
+    "run-applescript": "^6.1.0",
+    "speaker": "^0.5.4",
+    "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && node build/index.js"
+  }
+}
