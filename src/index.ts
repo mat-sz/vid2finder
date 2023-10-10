@@ -10,15 +10,18 @@ import { audio, frame } from './helpers.js';
 
 const bufferRoot = path.join(process.cwd(), 'dirs');
 
+const buffers = ['a', 'b'];
+
 const script = `
-tell application "Finder" to set target of front Finder window to ("${path.join(
-  bufferRoot,
-  'a'
-)}" as POSIX file)
-tell application "Finder" to set target of front Finder window to ("${path.join(
-  bufferRoot,
-  'b'
-)}" as POSIX file)
+${buffers
+  .map(
+    buffer =>
+      `tell application "Finder" to set target of front Finder window to ("${path.join(
+        bufferRoot,
+        buffer
+      )}" as POSIX file)`
+  )
+  .join('\n')}
 tell application "Finder" to tell front window to update every item
 
 set curBuf to "a"
@@ -28,10 +31,8 @@ repeat while curBuf ≠ "_"
 end repeat
 `;
 
-const buffers = ['a', 'b'];
-
 async function main(file = 'video.mp4') {
-  let buf = 'b';
+  let currentBuffer = 'b';
   let startedAt = new Date().getTime();
 
   async function emptyBuffer(buffer: string) {
@@ -47,10 +48,12 @@ async function main(file = 'video.mp4') {
   }
 
   async function renderFrame() {
-    await emptyBuffer(buf);
-    const bufferPath = path.join(bufferRoot, buf);
+    const time = new Date().getTime() - startedAt;
+    console.log('[PLAY]', 'Rendering frame at:', time, 'ms');
+    await emptyBuffer(currentBuffer);
+    const bufferPath = path.join(bufferRoot, currentBuffer);
     try {
-      const currentFrame = await frame(file, new Date().getTime() - startedAt);
+      const currentFrame = await frame(file, time);
       const decoded = decode(currentFrame);
       for (let y = 0; y < decoded.height; y++) {
         let name = `${y}`;
@@ -63,7 +66,7 @@ async function main(file = 'video.mp4') {
           if (b > 128) {
             name += '⬜️';
           } else {
-            name += '🟫';
+            name += '⬛';
           }
         }
 
@@ -73,17 +76,17 @@ async function main(file = 'video.mp4') {
   }
 
   function nextFrame() {
-    if (buf === 'a') {
-      buf = 'b';
+    if (currentBuffer === 'a') {
+      currentBuffer = 'b';
     } else {
-      buf = 'a';
+      currentBuffer = 'a';
     }
 
     renderFrame();
   }
 
   const server = createServer(socket => {
-    socket.write(buf);
+    socket.write(currentBuffer);
     nextFrame();
   });
   server.listen(9111, '127.0.0.1');
@@ -94,8 +97,8 @@ async function main(file = 'video.mp4') {
   const audioBuffer = await audio(videoPath);
   console.log('[PREPARE]', 'Audio converted...');
   console.log('[PREPARE]', 'Cleaning up buffers...');
-  for (const buf of buffers) {
-    await emptyBuffer(buf);
+  for (const buffer of buffers) {
+    await emptyBuffer(buffer);
   }
   console.log('[PREPARE]', 'Buffer directories ready...');
   console.log('[PREPARE]', 'Loading first frame...');
