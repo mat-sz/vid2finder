@@ -27,11 +27,16 @@ export function ffmpeg(
   });
 }
 
-export async function frame(input: string, time: number): Promise<Buffer> {
+export async function frame(
+  input: string,
+  time: number,
+  width: number,
+  height: number
+): Promise<Buffer> {
   const args: string[] = [];
   args.push('-ss', `${time}ms`);
   args.push('-i', input);
-  args.push('-vf', 'scale=48x32');
+  args.push('-vf', `scale=${width}x${height}`);
   args.push('-frames:v', '1');
   args.push('-vsync', '0');
   args.push('-c:v', 'bmp');

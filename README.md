@@ -13,4 +13,4 @@ Great write-up on how this was accomplished: https://eieio.games/nonsense/game-1
 ## Usage
 
 1. Install dependencies using `npm install` or `yarn`.
-2. Run: `npm run start` or `yarn start`
+2. Run: `npm run start -i ../video.mp4` or `yarn start -i ../video.mp4`

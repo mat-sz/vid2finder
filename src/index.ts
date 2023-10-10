@@ -7,6 +7,8 @@ import { decode } from 'bmp-js';
 import { createServer } from 'net';
 
 import { audio, frame } from './helpers.js';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
 const bufferRoot = path.join(process.cwd(), 'dirs');
 
@@ -31,7 +33,7 @@ repeat while curBuf ≠ "_"
 end repeat
 `;
 
-async function main(file = 'video.mp4') {
+async function main(file: string, width: number, height: number) {
   let currentBuffer = 'b';
   let startedAt = new Date().getTime();
 
@@ -53,7 +55,7 @@ async function main(file = 'video.mp4') {
     await emptyBuffer(currentBuffer);
     const bufferPath = path.join(bufferRoot, currentBuffer);
     try {
-      const currentFrame = await frame(file, time);
+      const currentFrame = await frame(file, time, width, height);
       const decoded = decode(currentFrame);
       for (let y = 0; y < decoded.height; y++) {
         let name = `${y}`;
@@ -91,10 +93,9 @@ async function main(file = 'video.mp4') {
   });
   server.listen(9111, '127.0.0.1');
 
-  const videoPath = path.resolve(file);
-  console.log('[PREPARE]', 'Preparing video: ', videoPath);
+  console.log('[PREPARE]', 'Preparing video: ', file);
   console.log('[PREPARE]', 'Converting audio...');
-  const audioBuffer = await audio(videoPath);
+  const audioBuffer = await audio(file);
   console.log('[PREPARE]', 'Audio converted...');
   console.log('[PREPARE]', 'Cleaning up buffers...');
   for (const buffer of buffers) {
@@ -121,4 +122,24 @@ async function main(file = 'video.mp4') {
   });
 }
 
-main();
+const args = yargs(hideBin(process.argv))
+  .option('height', {
+    alias: 'h',
+    type: 'number',
+    description: 'Height of output image',
+    default: 32,
+  })
+  .option('width', {
+    alias: 'w',
+    type: 'number',
+    description: 'Width of output image',
+    default: 48,
+  })
+  .option('input', {
+    alias: 'i',
+    type: 'string',
+    required: true,
+  })
+  .parseSync();
+
+main(path.resolve(args.input), args.width, args.height);
