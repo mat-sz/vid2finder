@@ -4,6 +4,10 @@ Inspired by [Nolen Royalty](https://github.com/nolenroyalty)'s [Flappy Dird](htt
 
 Great write-up on how this was accomplished: https://eieio.games/nonsense/game-11-flappy-bird-finder/
 
+https://github.com/mat-sz/vid2finder/assets/57893590/29cdf6e1-0132-4751-903f-d42c8b255a34
+
+YouTube link with audio: https://www.youtube.com/watch?v=G28cSliYTOU
+
 ## Requirements
 
 - macOS 11.x
